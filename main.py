@@ -18,7 +18,7 @@ class CSV:
     CSV_FILE = "finance_data.csv"
     COLUMN_NAMES = ["Date", "Amount", "Category", "Description"]
     DATE_FORMAT = "%d-%m-%Y"
-
+    
     @classmethod
     def initialize_csv(cls):
         """
@@ -78,18 +78,58 @@ class CSV:
         print(f"Total Expense: ${total_expense:.2f}")
         print(f"Net Income: ${total_income - total_expense:.2f}")
 
+    @classmethod
+    def get_choice(cls):
+        """
+        Get the user's choice for the next action.
+
+        Returns:
+            int: The user's choice as an integer.
+        """
+        print("1. Start a new transaction")
+        print("2. Get transactions between dates")
+        print("3. Exit")
+        try:
+            choice = int(input("Enter your choice: "))
+            if choice not in [1, 2, 3]:
+                raise ValueError
+            return choice
+        except ValueError:
+            print("Invalid choice. Please enter a valid option.")
+            return cls.get_choice()
+
+    @classmethod
+    def start_action(cls, choice):
+        """
+        Perform the action based on the user's choice.
+
+        Parameters:
+            choice (int): The user's choice for the next action.
+        """
+        if choice == 1:
+            date = get_date("Enter the date of the transaction (DD-MM-YYYY): ", allow_default=True)
+            amount = get_amount("Enter the amount of the transaction: ")
+            category = get_category("Enter 'I' for Income or 'E' for Expense: ")
+            description = get_description("Enter a brief description of the transaction: ")
+            cls.add_entry(date, amount, category, description)
+        elif choice == 2:
+            start_date = get_date("Enter the start date (DD-MM-YYYY): ")
+            end_date = get_date("Enter the end date (DD-MM-YYYY): ")
+            cls.get_entry(start_date, end_date)
+        elif choice == 3:
+            print("Exiting the application. Thank you for using the Personal Finance Tracker.")
+            exit()
+
 def main():
     """
     Main function to execute the personal finance transaction workflow.
 
     It initializes the CSV file, prompts the user for transaction details, and adds the new entry.
     """
-    CSV.initialize_csv()
-    date = get_date("Enter the date of the transaction (DD-MM-YYYY): ", allow_default=True)
-    amount = get_amount("Enter the amount of the transaction: ")
-    category = get_category("Enter 'I' for Income or 'E' for Expense: ")
-    description = get_description("Enter a brief description of the transaction: ")
-    CSV.add_entry(date, amount, category, description)
+    while True:
+        CSV.initialize_csv()
+        choice = CSV.get_choice()
+        CSV.start_action(choice)
 
 if __name__ == "__main__":
     main()
